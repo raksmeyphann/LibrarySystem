@@ -20,7 +20,9 @@ public class BookEntity {
 	
 	@Column(name = "yearPublished")
 	private String yearPublished;
-
+	
+	@Column(name="status")
+	private boolean status;
 	
 	@Column(name="ISBN")
 	private String ISBN;
@@ -33,22 +35,22 @@ public class BookEntity {
 	
 	@Column(name="edition")
 	private int edition;
-	@Column(name="status")
-	private boolean status;
 
-	public BookEntity(String id, String title, String publisher, String yearPublished,String iSBN,
-			double price, String author, int edition, boolean status)
+
+	public BookEntity(String id, String title, String publisher, String yearPublished,boolean status ,String iSBN,
+			double price, String author, int edition)
 	{
 	
 		this.id = id;
 		this.title = title;
 		this.publisher = publisher;
 		this.yearPublished = yearPublished;
+		this.status=status;
 		ISBN = iSBN;
 		this.price = price;
 		this.author = author;
 		this.edition = edition;
-		this.status=status;
+		
 	}
 
 	public String getId() {
@@ -127,8 +129,8 @@ public class BookEntity {
 	
 public String[] toStringData()
 	{
-	
-		String data[] = { this.getId(),this.getTitle(),this.getPublisher(),this.getYearPublished() ,this.ISBN, this.price + "" ,this.author, this.edition + "" };
+	   String statusStr  = status ? "Valaible" : "Unavailable";
+		String data[] = { this.getId(),this.getTitle(),this.getPublisher(),this.getYearPublished(), statusStr ,this.ISBN, this.price + "" ,this.author, this.edition + "" };
 		return data;
 	}
 

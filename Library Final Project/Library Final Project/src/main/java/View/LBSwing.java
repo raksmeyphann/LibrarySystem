@@ -58,7 +58,7 @@ public class LBSwing extends JFrame implements ActionListener
 
 
 	//For add Book
-	JTextField txtId,txtTitle,txtPublisher,txtPublisherYear,txtISBN,txtPrice,txtAuthor,txtEdition;
+	JTextField txtId,txtTitle,txtPublisher,txtPublisherYear,txtStatus,txtISBN,txtPrice,txtAuthor,txtEdition;
 	JButton btnAddBook,btnCancelBook;
 
 	//For Add Member
@@ -129,7 +129,7 @@ public class LBSwing extends JFrame implements ActionListener
 				//Create Object of Menu List
 				lstMember = new JMenuItem("List Members");
 				lstCatetory = new JMenuItem("List Book By Catetory");
-				lstBorrow = new JMenuItem("List of Borrowed Book");
+				lstBorrow = new JMenuItem("List Of Borrowed Book");
 				//Create Object of Menu List and add Its Item
 				mList  = new JMenu("List");
 				mList.add(lstMember);
@@ -423,6 +423,8 @@ public class LBSwing extends JFrame implements ActionListener
 	   	return blockBookList_Final;
 		
 	}
+	
+	
 	private JPanel performOpenBook_ListBook(JPanel BookList)
 	{
 		TitledBorder tBorderListBook = BorderFactory.createTitledBorder("List OF Book");
@@ -446,6 +448,7 @@ public class LBSwing extends JFrame implements ActionListener
 		tbmodelBook.addColumn("Title");
 		tbmodelBook.addColumn("Publisher");
 		tbmodelBook.addColumn("Publisher Year");
+		tbmodelBook.addColumn("Status");
 		tbmodelBook.addColumn("ISBN");
 		tbmodelBook.addColumn("Price");
 		tbmodelBook.addColumn("Author");
@@ -489,6 +492,7 @@ public class LBSwing extends JFrame implements ActionListener
 		
 	}
 
+	
      private JPanel performOpenList_ListBorrow(JPanel BorrowList)
 	{
 		TitledBorder tBorderListBorrow = BorderFactory.createTitledBorder("List of Borrow Book");
@@ -497,17 +501,21 @@ public class LBSwing extends JFrame implements ActionListener
 		
 		tbmodelBorrow = new DefaultTableModel();
 		tbmodelBorrow.addColumn("ID");
-		tbmodelBorrow.addColumn("Member");
-		tbmodelBorrow.addColumn("Book");
-		tbmodelBorrow.addColumn("Issu");
-		tbmodelBorrow.addColumn("Due");
+		tbmodelBorrow.addColumn("Title");
+		tbmodelBorrow.addColumn("Publisher");
+		tbmodelBorrow.addColumn("Publisher Year");
+		tbmodelBorrow.addColumn("Status");
+		tbmodelBorrow.addColumn("ISBN");
+		tbmodelBorrow.addColumn("Price");
+		tbmodelBorrow.addColumn("Author");
+		tbmodelBorrow.addColumn("Edition");
 		
 		tbBorrow = new JTable(tbmodelBorrow);
 		
 		// create session factory
 		SessionFactory factory = new Configuration()
 				.configure("hibernate.cfg.xml")
-				.addAnnotatedClass(BorrowEntity.class)
+				.addAnnotatedClass(BookEntity.class)
 				.buildSessionFactory();
 		// create session
 		Session session = factory.getCurrentSession();
@@ -515,10 +523,10 @@ public class LBSwing extends JFrame implements ActionListener
 			// start a transaction
 			session.beginTransaction();
 			String data[];
-			// query students
 			// you select data from MemberEntity but you declare List of member to get it
-			List<BorrowEntity> borrowlist = session.createQuery("from BorrowEntity").getResultList();
-			for(BorrowEntity bl: borrowlist) {
+			//List<BorrowEntity> borrowlist = session.createQuery("from BorrowEntity").getResultList();
+			List<BookEntity> booklist = session.createQuery("from BookEntity b where b.status=false").getResultList();
+			for(BookEntity bl : booklist) {
 				data = bl.toStringData();
 				tbmodelBorrow.addRow(data);
 			}
@@ -784,8 +792,6 @@ public class LBSwing extends JFrame implements ActionListener
 			String tom = txtMemberTOM.getText();
 	
 			MemberEntity memberEntity = new MemberEntity(id, name,address, dom,tom);
-			memberEntity.getId();
-			
 			SessionFactory factory = new Configuration().configure("hibernate.cfg.xml")
 					.addAnnotatedClass(MemberEntity.class)
 					.buildSessionFactory();
@@ -861,19 +867,19 @@ public class LBSwing extends JFrame implements ActionListener
 		if(e.getSource() == btnAddBook)
 		{
 			//Create Object of Books
+			
 			String id= txtId.getText();
 			String title = txtTitle.getText();
 			String publisher = txtPublisher.getText();
 			String yearPublished = txtPublisherYear.getText();
+			boolean status = true;
+			//boolean status = txtStatus.toString() == "Valaible" ? true : false;
 			String ISBN = txtISBN.getText();
 			double price = Double.parseDouble(txtPrice.getText());
 			String author = txtAuthor.getText();
 			int edition = Integer.parseInt(txtEdition.getText());
-			boolean status =true;
-
-
-			BookEntity bookEntity = new BookEntity(id,title,publisher, yearPublished,ISBN,price,author,edition,status);
-			bookEntity.getId();
+		
+			BookEntity bookEntity = new BookEntity(id,title,publisher, yearPublished,status,ISBN,price,author,edition);
 			SessionFactory factory = new Configuration().configure("hibernate.cfg.xml")
 					.addAnnotatedClass(BookEntity.class)
 					.buildSessionFactory();
@@ -887,7 +893,7 @@ public class LBSwing extends JFrame implements ActionListener
 			System.out.println("Saving the Book...");
 			sessionObj.save(bookEntity);
 			sessionObj.getTransaction().commit();
-				JOptionPane.showMessageDialog(null, "Add Successfully", "Book Information", JOptionPane.PLAIN_MESSAGE);
+			JOptionPane.showMessageDialog(null, "Add Successfully", "Book Information", JOptionPane.PLAIN_MESSAGE);
 
 			}
 
@@ -898,6 +904,7 @@ public class LBSwing extends JFrame implements ActionListener
 
 		}
 	}
+	
 	public void saveBorrowInfo(String member ,String book,String issue,String due){
 		SessionFactory factory = new Configuration().configure("hibernate.cfg.xml")
 				.addAnnotatedClass(BorrowEntity.class)

@@ -13,7 +13,7 @@ public class App
     {
         String jdbcUrl = "jdbc:mysql://localhost:3306/library?useSSL=false";
         String user ="root";
-        String pwd="root";
+        String pwd="";
         try {
 			System.out.println("connect to database:"+jdbcUrl);
 			Connection myConn = DriverManager.getConnection(jdbcUrl,user,pwd);
