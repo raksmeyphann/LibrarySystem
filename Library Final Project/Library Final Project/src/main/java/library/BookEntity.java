@@ -129,7 +129,7 @@ public class BookEntity {
 	
 public String[] toStringData()
 	{
-	   String statusStr  = status ? "Valaible" : "Unavailable";
+	    String statusStr  = status ? "Valaible" : "Unavailable";
 		String data[] = { this.getId(),this.getTitle(),this.getPublisher(),this.getYearPublished(), statusStr ,this.ISBN, this.price + "" ,this.author, this.edition + "" };
 		return data;
 	}

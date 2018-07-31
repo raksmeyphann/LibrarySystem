@@ -47,6 +47,10 @@ public class LBSwing extends JFrame implements ActionListener
 	JTable tbBook;
 	DefaultTableModel tbmodelBook;
 	
+	//List Thesis
+	JTable tbThesis;
+	DefaultTableModel tbmodelThesis;
+	
 	//List Member
 	JTable tbMember;
 	DefaultTableModel tbmodelMember;
@@ -54,8 +58,6 @@ public class LBSwing extends JFrame implements ActionListener
 	//List Borrow Book
 	JTable tbBorrow;
 	DefaultTableModel tbmodelBorrow;
-
-
 
 	//For add Book
 	JTextField txtId,txtTitle,txtPublisher,txtPublisherYear,txtStatus,txtISBN,txtPrice,txtAuthor,txtEdition;
@@ -71,18 +73,15 @@ public class LBSwing extends JFrame implements ActionListener
 
 	//Return Book
 	JTextField txtReturnBookID;
+	
 	//For Add Thesis
-	JTextField txtThesisIID, txtThesisTitle,txtThesisPublisher,txtThesisPublisherYear,txtThesisWriter,txtThesisTOT,txtBookId;
+	JTextField txtThesisIID, txtThesisTitle,txtThesisPublisher,txtThesisPublisherYear,txtThesisWriter,txtThesisTOT;
 	JButton btnAddThesis,btCancel;
 	
-	//Declare Book ArrayList
-	ArrayList<Book> ListBook;
-	ArrayList<Member> ListMember;
-	List<MemberEntity> memberlist;
 
 	public LBSwing()
 	{
-		   ListBook = new ArrayList<Book>();
+		   
 		       // Create object MenuItem of file
 				mItemNew = new JMenuItem("New");
 				mItemSave= new JMenuItem("Save");
@@ -99,8 +98,11 @@ public class LBSwing extends JFrame implements ActionListener
 				
 				// Create Object of Menu About Book
 				mAddBook = new JMenuItem("Add New Book");
+				mAddBook.addActionListener(this);
 				mBorrowBook = new JMenuItem("Borrow Book");
+				mBorrowBook.addActionListener(this);
 				mReturnBook = new JMenuItem("Return Book");
+				mReturnBook.addActionListener(this);
 				// Create Object Menu About Book and Add its Items
 				mAboutBook = new JMenu("About Book");
 				mAboutBook.add(mAddBook);
@@ -112,6 +114,7 @@ public class LBSwing extends JFrame implements ActionListener
 				
 				//Create Object of Menu Member
 				mMembers = new JMenuItem("Add Member");
+				mMembers.addActionListener(this);
 				//Create object Menu Report and Add its Item
 				mMember = new JMenu("Members");
 			    mMember.add(mMembers);
@@ -120,6 +123,7 @@ public class LBSwing extends JFrame implements ActionListener
 			    
 			    //Create Object of Menu Thesis
 			    mThesises = new JMenuItem("Add Thesis");
+			    mThesises.addActionListener(this);
 			    //Create Object of Menu Thesis And add Its Item
 			    mThesis = new JMenu("Thesis");
 			    mThesis.add(mThesises);
@@ -128,8 +132,11 @@ public class LBSwing extends JFrame implements ActionListener
 			    
 				//Create Object of Menu List
 				lstMember = new JMenuItem("List Members");
+				lstMember.addActionListener(this);
 				lstCatetory = new JMenuItem("List Book By Catetory");
+				lstCatetory.addActionListener(this);
 				lstBorrow = new JMenuItem("List Of Borrowed Book");
+				lstBorrow.addActionListener(this);
 				//Create Object of Menu List and add Its Item
 				mList  = new JMenu("List");
 				mList.add(lstMember);
@@ -401,7 +408,7 @@ public class LBSwing extends JFrame implements ActionListener
 					String data[];
 					// you select data from MemberEntity but you declare List of member to get it
 
-					memberlist= session.createQuery("from MemberEntity").getResultList();
+					List<MemberEntity> memberlist= session.createQuery("from MemberEntity").getResultList();
 					for(MemberEntity ml: memberlist) {
 						data = ml.toStringData();
 						tbmodelMember.addRow(data);
@@ -483,7 +490,6 @@ public class LBSwing extends JFrame implements ActionListener
 		
 		
 		JPanel blockBookList_Final = new JPanel(new BorderLayout(10,10));
-		blockBookList_Final.add(new JLabel("List Of Your Book"), BorderLayout.NORTH);
 		blockBookList_Final.add(new JSeparator(),BorderLayout.CENTER);
 	    blockBookList_Final.add(searchandlistpanel, BorderLayout.CENTER);
 	    
@@ -493,6 +499,57 @@ public class LBSwing extends JFrame implements ActionListener
 	}
 
 	
+
+	private JPanel performOpenBook_ListTheis(JPanel ThesisList)
+	{
+		TitledBorder tBorderListThesis = BorderFactory.createTitledBorder("List OF Thesis");
+		tBorderListThesis.setTitleJustification(TitledBorder.CENTER);
+		ThesisList.setBorder(tBorderListThesis);
+		
+		tbmodelThesis = new DefaultTableModel();
+		tbmodelThesis.addColumn("ID");
+		tbmodelThesis.addColumn("Title");
+		tbmodelThesis.addColumn("Publisher");
+		tbmodelThesis.addColumn("Publisher Year");
+		tbmodelThesis.addColumn("Writer");
+		tbmodelThesis.addColumn("Type Of Thesis");
+
+		tbThesis = new JTable(tbmodelThesis);
+
+	   SessionFactory factory = new Configuration()
+				.configure("hibernate.cfg.xml")
+				.addAnnotatedClass(ThesisEntity.class)
+				.buildSessionFactory();
+
+		Session session = factory.getCurrentSession();
+		try {
+
+			session.beginTransaction();
+			String data[];
+			List<ThesisEntity> Thesis = session.createQuery("from ThesisEntity").getResultList();				
+			for(ThesisEntity tl: Thesis) {
+				data = tl.toStringData();
+				tbmodelThesis.addRow(data);
+			}
+			// commit transaction
+			session.getTransaction().commit();
+		}finally {
+			factory.close();
+		}
+		
+		JPanel tbPanel = new JPanel(new BorderLayout(10,10));
+		tbPanel.add(new JScrollPane(tbThesis),BorderLayout.CENTER);
+		
+		
+		JPanel blockThesisList_Final = new JPanel(new BorderLayout(10,10));
+		blockThesisList_Final.add(new JSeparator(),BorderLayout.CENTER);
+	    blockThesisList_Final.add(tbPanel, BorderLayout.CENTER);
+	    
+	    
+		return blockThesisList_Final;
+		
+	}
+
      private JPanel performOpenList_ListBorrow(JPanel BorrowList)
 	{
 		TitledBorder tBorderListBorrow = BorderFactory.createTitledBorder("List of Borrow Book");
@@ -550,13 +607,19 @@ public class LBSwing extends JFrame implements ActionListener
 	{
 		JPanel BookPanel = new JPanel(new BorderLayout(10,10));
 		JPanel BookList= new JPanel(new BorderLayout(10,10));
-		JPanel BookAdd= new JPanel(new BorderLayout(10,10));
+		JPanel ThesisList= new JPanel(new BorderLayout(10,10));
 		
-		TitledBorder titleBorder = BorderFactory.createTitledBorder("Show List");
-		titleBorder.setTitleJustification(TitledBorder.CENTER);
-		BookAdd.setBorder(titleBorder);
+		//TitledBorder titleBorder = BorderFactory.createTitledBorder("Show List");
+		//titleBorder.setTitleJustification(TitledBorder.CENTER);
+		//BookAdd.setBorder(titleBorder);
 		BookList.add(performOpenBook_ListBook(BookList),BorderLayout.NORTH);
-		BookPanel.add(BookList,BorderLayout.CENTER);
+	    ThesisList.add(performOpenBook_ListTheis(ThesisList));
+	    
+		BookPanel.add(new JScrollPane(BookList),BorderLayout.CENTER);
+		//BookPanel.add(new JSeparator(),BorderLayout.CENTER);
+		BookPanel.add(new JScrollPane(ThesisList),BorderLayout.EAST);
+		 JSplitPane js = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,true,BookList,ThesisList);
+		 BookPanel.add(js);
 		
 		
 		JTab.addTab("List Book By Category :", BookPanel);
@@ -713,6 +776,40 @@ public class LBSwing extends JFrame implements ActionListener
 	    
 	public void actionPerformed(ActionEvent e) 
 	{
+		if(e.getSource() == mAddBook)
+		{
+			performAddBook();
+		}
+		else if (e.getSource() == mBorrowBook) 
+		{
+			performOpenBook_Borrow();
+		}
+		else if (e.getSource() == mReturnBook)
+		{
+			performOpenBook_Return();
+		}
+		else if(e.getSource() == mMembers)
+		{
+			performMember();
+		}
+		else if(e.getSource() == mThesises)
+		{
+			performAddThesis();
+		}
+		if(e.getSource() == lstMember)
+		{
+			performShowlstMember();
+		}
+		else if (e.getSource() == lstCatetory) 
+		{
+		    performShowlstBook();
+		}
+		else if (e.getSource() == lstBorrow)
+		{
+			performShowlstBorrow();
+		}
+		
+		
 		close:
 		if(e.getSource()==btnBorrow) {
 			boolean borrow=false;
@@ -803,6 +900,38 @@ public class LBSwing extends JFrame implements ActionListener
 			sessionObj.getTransaction().commit();
 
 			JOptionPane.showMessageDialog(null, "Add Successfully", "Member Information", JOptionPane.PLAIN_MESSAGE);
+
+
+			}
+
+			finally {
+			factory.close();
+			}
+
+
+		}	
+	
+	        if(e.getSource() == btnAddThesis)
+		{
+			String id= txtThesisIID.getText();
+			String title = txtThesisTitle.getText();
+			String publisher = txtThesisPublisher.getText();
+			String yearPublished = txtThesisPublisherYear.getText();
+			String writer = txtThesisWriter.getText();
+			String type = txtThesisTOT.getText();
+	
+			ThesisEntity thesisEntity = new ThesisEntity (id,title,publisher,yearPublished,writer,type);
+			SessionFactory factory = new Configuration().configure("hibernate.cfg.xml")
+					.addAnnotatedClass(ThesisEntity.class)
+					.buildSessionFactory();
+			Session sessionObj = factory.getCurrentSession();
+			try {
+			
+			sessionObj.beginTransaction();
+			sessionObj.save(thesisEntity);
+			sessionObj.getTransaction().commit();
+
+			JOptionPane.showMessageDialog(null, "Add Successfully", "Thesis Information", JOptionPane.PLAIN_MESSAGE);
 
 
 			}
